@@ -8,13 +8,17 @@
     <link rel="canonical" href="{{ url()->current() }}">
     <meta property="og:title" content="@yield('title', config('app.name'))">
     <meta property="og:description" content="@yield('meta_description', '')">
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:locale" content="ko_KR">
     @hasSection('og_image')
         <meta property="og:image" content="@yield('og_image')">
     @endif
     <link rel="alternate" type="application/rss+xml" title="{{ config('app.name') }}" href="{{ route('sitemap') }}">
     @if (config('services.google.site_verification'))
         <meta name="google-site-verification" content="{{ config('services.google.site_verification') }}">
+    @endif
+    @if (config('services.naver.site_verification'))
+        <meta name="naver-site-verification" content="{{ config('services.naver.site_verification') }}">
     @endif
     @if (config('services.google.adsense_client'))
         <meta name="google-adsense-account" content="{{ config('services.google.adsense_client') }}">

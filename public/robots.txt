@@ -1,2 +1,4 @@
 User-agent: *
 Disallow:
+
+Sitemap: https://info.awesomekorean.com/sitemap.xml

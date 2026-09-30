@@ -44,4 +44,8 @@ return [
         'adsense_client' => env('GOOGLE_ADSENSE_CLIENT'), // e.g. ca-pub-1234567890123456
     ],
 
+    'naver' => [
+        'site_verification' => env('NAVER_SITE_VERIFICATION'),
+    ],
+
 ];

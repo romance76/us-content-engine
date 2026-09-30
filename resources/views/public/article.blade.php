@@ -1,10 +1,20 @@
 @extends('public.layout')
 
+@php
+    $bodyHasImage = str_contains($article->body, '<img');
+@endphp
+
 @section('title', $article->meta_title ?: $article->title)
 @section('meta_description', $article->meta_description ?: $article->excerpt)
+@section('og_type', 'article')
 @if ($article->cover_image_url)
     @section('og_image', $article->cover_image_url)
 @endif
+
+@push('head')
+    <meta property="article:published_time" content="{{ $article->published_at?->toIso8601String() }}">
+    <meta property="article:modified_time" content="{{ $article->updated_at->toIso8601String() }}">
+@endpush
 
 @section('content')
     <article>
@@ -19,7 +29,7 @@
             {{ $article->published_at?->format('M j, Y') }}
         </time>
 
-        @if ($article->cover_image_url)
+        @if ($article->cover_image_url && ! $bodyHasImage)
             <img src="{{ $article->cover_image_url }}" alt="{{ $article->title }}" class="mt-6 rounded-lg w-full">
         @endif
 
