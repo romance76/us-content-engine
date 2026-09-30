@@ -10,8 +10,11 @@ use Illuminate\Http\Request;
 
 /**
  * Receives AI-drafted articles from the external content pipeline.
- * Always lands as status=draft — a human must review and publish
- * from /admin before anything goes live (Google scaled-content-abuse guard).
+ * Lands as status=draft by default — a human reviews and publishes
+ * from /admin before anything goes live (Google scaled-content-abuse
+ * guard). The caller may explicitly pass `publish: true` to skip the
+ * review step for a trusted, already-reviewed batch; this still
+ * requires the same bearer token as everything else on this endpoint.
  */
 class IngestArticleController extends Controller
 {
@@ -19,7 +22,7 @@ class IngestArticleController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'alpha_dash', 'unique:articles,slug'],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:articles,slug'],
             'excerpt' => ['nullable', 'string', 'max:500'],
             'body' => ['required', 'string'],
             'keyword_id' => ['nullable', 'exists:keywords,id'],
@@ -27,6 +30,7 @@ class IngestArticleController extends Controller
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:255'],
             'cover_image_url' => ['nullable', 'url', 'max:2048'],
+            'publish' => ['nullable', 'boolean'],
         ]);
 
         if (empty($data['keyword_id']) && ! empty($data['keyword_term'])) {
@@ -37,9 +41,15 @@ class IngestArticleController extends Controller
         }
         unset($data['keyword_term']);
 
+        $publish = (bool) ($data['publish'] ?? false);
+        unset($data['publish']);
+
         $data['slug'] = $data['slug'] ?? Article::makeUniqueSlug($data['title']);
-        $data['status'] = Article::STATUS_DRAFT;
+        $data['status'] = $publish ? Article::STATUS_PUBLISHED : Article::STATUS_DRAFT;
         $data['generated_by'] = 'ai';
+        if ($publish) {
+            $data['published_at'] = now();
+        }
 
         $article = Article::create($data);
 
