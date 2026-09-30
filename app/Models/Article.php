@@ -60,7 +60,15 @@ class Article extends Model
 
     public static function makeUniqueSlug(string $title): string
     {
-        $base = Str::slug($title);
+        // Str::slug() only transliterates Latin scripts: a Korean title either
+        // collapses to an empty string (breaking route generation) or gets
+        // reduced to a stray leftover ASCII fragment (e.g. just "dds" out of a
+        // whole Korean sentence). Detect non-ASCII content and build the slug
+        // straight from the sanitized original title instead.
+        $base = preg_match('/[^\x00-\x7F]/', $title)
+            ? trim(preg_replace('/[^\p{L}\p{N}]+/u', '-', $title), '-')
+            : Str::slug($title);
+
         $slug = $base;
         $suffix = 1;
 
