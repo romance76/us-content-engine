@@ -150,11 +150,17 @@
 
             const blocks = toBlocks(rest);
 
-            // First plain-text block (not a heading/list) becomes the excerpt.
-            const excerptBlock = blocks.find(b => ! /^#{1,6}\s|^[-*]\s|^\d+\.\s/.test(b));
+            // First plain-text block (not a heading/list/image) becomes the excerpt.
+            const excerptBlock = blocks.find(b => ! /^#{1,6}\s|^[-*]\s|^\d+\.\s|^!\[/.test(b));
             const excerpt = excerptBlock ? inlineMarkdown(excerptBlock).replace(/<[^>]+>/g, '').slice(0, 480) : '';
 
             const bodyHtml = blocks.map(blockToHtml).join('\n');
+
+            // First image markdown anywhere in the draft also becomes the cover image.
+            const coverMatch = raw.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/);
+            if (coverMatch) {
+                document.getElementById('cover_image_url').value = coverMatch[1];
+            }
 
             document.getElementById('title').value = title;
             document.getElementById('excerpt').value = excerpt;
@@ -163,6 +169,7 @@
 
         function inlineMarkdown(text) {
             return text
+                .replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px">')
                 .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
                 .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*([^*]+)\*/g, '<em>$1</em>');
