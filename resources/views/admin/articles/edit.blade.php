@@ -44,6 +44,22 @@
             @csrf
             @if ($article->exists) @method('PUT') @endif
 
+            <details class="border border-blue-200 bg-blue-50 rounded-md p-4">
+                <summary class="text-sm font-medium text-blue-800 cursor-pointer select-none">
+                    ChatGPT 초안 가져오기 (제목/요약/본문 자동 채우기)
+                </summary>
+                <p class="mt-2 text-xs text-blue-700">
+                    ChatGPT 등에서 작성한 글(마크다운 형식 — # 제목, ## 소제목, [링크 텍스트](URL), - 목록 등)을 아래에
+                    통째로 붙여넣고 "채워넣기"를 누르면 제목/요약/본문 칸이 자동으로 채워집니다. 채운 뒤에는 그대로
+                    검토·수정해서 저장하면 됩니다.
+                </p>
+                <textarea id="ai_draft" rows="8" class="mt-3 block w-full border-blue-300 rounded-md text-sm"
+                          placeholder="# 조지아 자동차 등록 갱신 방법&#10;&#10;조지아에서 자동차 등록을 갱신하는 방법을 정리합니다.&#10;&#10;## 준비물&#10;- 운전면허증&#10;- 차량 보험증서&#10;&#10;자세한 내용은 [Georgia DOR](https://dor.georgia.gov) 참고."></textarea>
+                <button type="button" id="ai_draft_fill" class="mt-3 px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                    채워넣기 →
+                </button>
+            </details>
+
             <div>
                 <x-input-label for="title" value="Title" />
                 <x-text-input id="title" name="title" class="mt-1 block w-full" value="{{ old('title', $article->title) }}" required />
@@ -118,4 +134,97 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.getElementById('ai_draft_fill').addEventListener('click', function () {
+            const raw = document.getElementById('ai_draft').value.trim();
+            if (! raw) return;
+
+            const lines = raw.split(/\r?\n/);
+
+            // First non-empty line is the title (strip a leading markdown # if present).
+            let i = 0;
+            while (i < lines.length && lines[i].trim() === '') i++;
+            const title = (lines[i] || '').replace(/^#+\s*/, '').trim();
+            const rest = lines.slice(i + 1).join('\n').trim();
+
+            const blocks = toBlocks(rest);
+
+            // First plain-text block (not a heading/list) becomes the excerpt.
+            const excerptBlock = blocks.find(b => ! /^#{1,6}\s|^[-*]\s|^\d+\.\s/.test(b));
+            const excerpt = excerptBlock ? inlineMarkdown(excerptBlock).replace(/<[^>]+>/g, '').slice(0, 480) : '';
+
+            const bodyHtml = blocks.map(blockToHtml).join('\n');
+
+            document.getElementById('title').value = title;
+            document.getElementById('excerpt').value = excerpt;
+            document.getElementById('body').value = bodyHtml;
+        });
+
+        function inlineMarkdown(text) {
+            return text
+                .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        }
+
+        // Groups lines into homogeneous blocks (a heading line, a run of list
+        // items, or a paragraph) — unlike a blank-line split, this also
+        // separates a heading from a list that follows it with no blank line
+        // in between, which is how ChatGPT typically formats a draft.
+        function toBlocks(text) {
+            const lines = text.split('\n');
+            const blocks = [];
+            const isHeading = l => /^#{2,6}\s+/.test(l);
+            const isBullet = l => /^[-*]\s+/.test(l);
+            const isNumbered = l => /^\d+\.\s+/.test(l);
+
+            let i = 0;
+            while (i < lines.length) {
+                const line = lines[i].trim();
+                if (line === '') { i++; continue; }
+
+                if (isHeading(line)) { blocks.push(line); i++; continue; }
+
+                if (isBullet(line) || isNumbered(line)) {
+                    const test = isBullet(line) ? isBullet : isNumbered;
+                    const items = [];
+                    while (i < lines.length && test(lines[i].trim())) { items.push(lines[i].trim()); i++; }
+                    blocks.push(items.join('\n'));
+                    continue;
+                }
+
+                const para = [];
+                while (i < lines.length && lines[i].trim() !== '' && !isHeading(lines[i].trim()) && !isBullet(lines[i].trim()) && !isNumbered(lines[i].trim())) {
+                    para.push(lines[i].trim());
+                    i++;
+                }
+                blocks.push(para.join(' '));
+            }
+
+            return blocks;
+        }
+
+        function blockToHtml(block) {
+            const headingMatch = block.match(/^(#{2,6})\s+(.*)$/);
+            if (headingMatch) {
+                const level = Math.min(headingMatch[1].length, 4); // h2–h4 inside the article body
+                return `<h${level}>${inlineMarkdown(headingMatch[2].trim())}</h${level}>`;
+            }
+
+            const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+
+            if (lines.every(l => /^[-*]\s+/.test(l))) {
+                const items = lines.map(l => `<li>${inlineMarkdown(l.replace(/^[-*]\s+/, ''))}</li>`).join('');
+                return `<ul>${items}</ul>`;
+            }
+
+            if (lines.every(l => /^\d+\.\s+/.test(l))) {
+                const items = lines.map(l => `<li>${inlineMarkdown(l.replace(/^\d+\.\s+/, ''))}</li>`).join('');
+                return `<ol>${items}</ol>`;
+            }
+
+            return `<p>${inlineMarkdown(block)}</p>`;
+        }
+    </script>
 </x-app-layout>
