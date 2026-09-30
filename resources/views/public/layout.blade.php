@@ -29,17 +29,17 @@
 </head>
 <body class="bg-white text-gray-900 antialiased">
     <header class="border-b border-gray-100">
-        <div class="max-w-5xl mx-auto px-4 py-5 flex items-center justify-between">
+        <div class="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
             <a href="{{ route('home') }}" class="text-lg font-bold tracking-tight">{{ config('app.name') }}</a>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 py-10">
+    <main class="max-w-6xl mx-auto px-4 py-10">
         @yield('content')
     </main>
 
     <footer class="border-t border-gray-100 mt-16">
-        <div class="max-w-5xl mx-auto px-4 py-8 text-sm text-gray-400 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div class="max-w-6xl mx-auto px-4 py-8 text-sm text-gray-400 flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</span>
             <a href="{{ route('about') }}" class="hover:text-gray-600">소개</a>
             <a href="{{ route('privacy') }}" class="hover:text-gray-600">개인정보처리방침</a>

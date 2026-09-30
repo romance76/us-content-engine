@@ -28,6 +28,7 @@
                     <tr>
                         <th class="px-4 py-3">Title</th>
                         <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Category</th>
                         <th class="px-4 py-3">Source</th>
                         <th class="px-4 py-3">Updated</th>
                         <th class="px-4 py-3"></th>
@@ -47,6 +48,7 @@
                                     'bg-green-100 text-green-800' => $article->status === 'published',
                                 ])>{{ $article->status }}</span>
                             </td>
+                            <td class="px-4 py-3 text-gray-500">{{ $article->category ?? '—' }}</td>
                             <td class="px-4 py-3 text-gray-500">{{ $article->generated_by }}</td>
                             <td class="px-4 py-3 text-gray-500">{{ $article->updated_at->diffForHumans() }}</td>
                             <td class="px-4 py-3 text-right">
@@ -55,7 +57,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-400">No articles yet.</td>
+                            <td colspan="6" class="px-4 py-8 text-center text-gray-400">No articles yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

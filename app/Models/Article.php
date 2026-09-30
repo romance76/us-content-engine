@@ -18,6 +18,17 @@ class Article extends Model
 
     public const STATUS_PUBLISHED = 'published';
 
+    public const CATEGORIES = [
+        '생활정보',
+        '금융·세금',
+        '부동산',
+        '교통',
+        '날씨·안전',
+        '통신',
+        '창업·비즈니스',
+        '교육',
+    ];
+
     protected $fillable = [
         'title',
         'slug',
@@ -25,6 +36,7 @@ class Article extends Model
         'body',
         'status',
         'keyword_id',
+        'category',
         'reviewed_by',
         'meta_title',
         'meta_description',
@@ -56,6 +68,11 @@ class Article extends Model
     {
         return $query->where('status', self::STATUS_PUBLISHED)
             ->where('published_at', '<=', now());
+    }
+
+    public function scopeCategory(Builder $query, string $category): Builder
+    {
+        return $query->where('category', $category);
     }
 
     public static function makeUniqueSlug(string $title): string

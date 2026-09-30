@@ -100,6 +100,7 @@ class ArticleController extends Controller
             'body' => ['required', 'string'],
             'status' => ['required', 'in:draft,in_review,published'],
             'keyword_id' => ['nullable', 'exists:keywords,id'],
+            'category' => ['nullable', 'string', 'in:'.implode(',', Article::CATEGORIES)],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:255'],
             'cover_image_url' => ['nullable', 'url', 'max:2048'],

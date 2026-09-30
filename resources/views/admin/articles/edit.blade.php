@@ -56,7 +56,7 @@
                 <x-input-error :messages="$errors->get('slug')" class="mt-1" />
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
                 <div>
                     <x-input-label for="status" value="Status" />
                     <select id="status" name="status" class="mt-1 block w-full border-gray-300 rounded-md">
@@ -64,6 +64,16 @@
                             <option value="{{ $s }}" @selected(old('status', $article->status) === $s)>{{ $s }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div>
+                    <x-input-label for="category" value="Category" />
+                    <select id="category" name="category" class="mt-1 block w-full border-gray-300 rounded-md">
+                        <option value="">—</option>
+                        @foreach (\App\Models\Article::CATEGORIES as $c)
+                            <option value="{{ $c }}" @selected(old('category', $article->category) === $c)>{{ $c }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('category')" class="mt-1" />
                 </div>
                 <div>
                     <x-input-label for="keyword_id" value="Source keyword" />

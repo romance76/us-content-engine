@@ -21,6 +21,16 @@ class ArticleController extends Controller
             ->take(4)
             ->get();
 
-        return view('public.article', compact('article', 'related'));
+        $older = Article::published()
+            ->where('published_at', '<', $article->published_at)
+            ->latest('published_at')
+            ->first(['title', 'slug']);
+
+        $newer = Article::published()
+            ->where('published_at', '>', $article->published_at)
+            ->oldest('published_at')
+            ->first(['title', 'slug']);
+
+        return view('public.article', compact('article', 'related', 'older', 'newer'));
     }
 }

@@ -9,10 +9,39 @@ class HomeController extends Controller
 {
     public function index(): View
     {
-        $articles = Article::published()
-            ->latest('published_at')
-            ->paginate(12);
+        return $this->render();
+    }
 
-        return view('public.home', compact('articles'));
+    public function category(string $category): View
+    {
+        return $this->render($category);
+    }
+
+    private function render(?string $category = null): View
+    {
+        $articles = Article::published()
+            ->when($category, fn ($q) => $q->category($category))
+            ->latest('published_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        $categories = Article::published()
+            ->selectRaw('category, count(*) as count')
+            ->whereNotNull('category')
+            ->groupBy('category')
+            ->orderByDesc('count')
+            ->pluck('count', 'category');
+
+        $recent = Article::published()
+            ->latest('published_at')
+            ->take(5)
+            ->get(['title', 'slug', 'published_at']);
+
+        return view('public.home', [
+            'articles' => $articles,
+            'categories' => $categories,
+            'recent' => $recent,
+            'activeCategory' => $category,
+        ]);
     }
 }
