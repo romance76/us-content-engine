@@ -56,4 +56,29 @@ class IngestArticleController extends Controller
 
         return response()->json(['id' => $article->id, 'slug' => $article->slug, 'status' => $article->status], 201);
     }
+
+    /**
+     * Published articles missing a cover image — used to back-fill images
+     * on articles that were created without one.
+     */
+    public function missingCover(): JsonResponse
+    {
+        $articles = Article::published()
+            ->whereNull('cover_image_url')
+            ->orderByDesc('published_at')
+            ->get(['id', 'slug', 'title', 'category', 'excerpt']);
+
+        return response()->json($articles);
+    }
+
+    public function update(Request $request, Article $article): JsonResponse
+    {
+        $data = $request->validate([
+            'cover_image_url' => ['required', 'url', 'max:2048'],
+        ]);
+
+        $article->update($data);
+
+        return response()->json(['id' => $article->id, 'slug' => $article->slug, 'cover_image_url' => $article->cover_image_url]);
+    }
 }
