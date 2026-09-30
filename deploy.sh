@@ -25,7 +25,9 @@ COMMIT_AFTER=$(git rev-parse --short HEAD)
 log "Commit: $COMMIT_BEFORE → $COMMIT_AFTER"
 
 log "▶ Step 2/6: composer install"
-composer install --no-dev --optimize-autoloader --no-interaction -q 2>&1 | tail -10 >> "$LOG" || fail "composer" "check composer.lock drift"
+COMPOSER_BIN="${COMPOSER_BIN:-/usr/local/bin/composer-us-content-engine}"
+[ -x "$COMPOSER_BIN" ] || COMPOSER_BIN=composer
+"$PHP_BIN" "$COMPOSER_BIN" install --no-dev --optimize-autoloader --no-interaction -q 2>&1 | tail -10 >> "$LOG" || fail "composer" "check composer.lock drift"
 
 log "▶ Step 3/6: npm install + vite build"
 (npm ci --silent 2>/dev/null || npm install --silent) 2>&1 | tail -5 >> "$LOG" || fail "npm-install" "dependency resolution"

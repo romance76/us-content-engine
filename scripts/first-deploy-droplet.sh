@@ -25,9 +25,10 @@ apt-get install -y -qq php$PHP_VER-fpm php$PHP_VER-cli php$PHP_VER-common \
     php$PHP_VER-bcmath php$PHP_VER-gd php$PHP_VER-sqlite3 \
     git unzip nginx
 
-echo "-> Installing composer (if missing)"
-if ! command -v composer >/dev/null; then
-    curl -sS https://getcomposer.org/installer | php$PHP_VER -- --install-dir=/usr/local/bin --filename=composer
+echo "-> Installing this project's own composer (isolated from any system-wide composer)"
+COMPOSER_BIN=/usr/local/bin/composer-us-content-engine
+if [ ! -f "$COMPOSER_BIN" ]; then
+    curl -sS https://getcomposer.org/installer | php$PHP_VER -- --install-dir=/usr/local/bin --filename=composer-us-content-engine
 fi
 
 echo "-> Installing node/npm (if missing)"
@@ -46,7 +47,7 @@ fi
 
 echo "-> Composer + npm install"
 export COMPOSER_ALLOW_SUPERUSER=1
-composer install --no-dev --optimize-autoloader --no-interaction -q
+php$PHP_VER "$COMPOSER_BIN" install --no-dev --optimize-autoloader --no-interaction -q
 npm ci --silent
 npm run build
 
