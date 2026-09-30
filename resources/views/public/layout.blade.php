@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,6 +13,13 @@
         <meta property="og:image" content="@yield('og_image')">
     @endif
     <link rel="alternate" type="application/rss+xml" title="{{ config('app.name') }}" href="{{ route('sitemap') }}">
+    @if (config('services.google.site_verification'))
+        <meta name="google-site-verification" content="{{ config('services.google.site_verification') }}">
+    @endif
+    @if (config('services.google.adsense_client'))
+        <meta name="google-adsense-account" content="{{ config('services.google.adsense_client') }}">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config('services.google.adsense_client') }}" crossorigin="anonymous"></script>
+    @endif
     @vite(['resources/css/app.css'])
     @stack('head')
 </head>
@@ -28,8 +35,10 @@
     </main>
 
     <footer class="border-t border-gray-100 mt-16">
-        <div class="max-w-5xl mx-auto px-4 py-8 text-sm text-gray-400">
-            &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+        <div class="max-w-5xl mx-auto px-4 py-8 text-sm text-gray-400 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</span>
+            <a href="{{ route('about') }}" class="hover:text-gray-600">소개</a>
+            <a href="{{ route('privacy') }}" class="hover:text-gray-600">개인정보처리방침</a>
         </div>
     </footer>
 </body>

@@ -39,4 +39,9 @@ return [
         'token' => env('INGEST_API_TOKEN'),
     ],
 
+    'google' => [
+        'site_verification' => env('GOOGLE_SITE_VERIFICATION'),
+        'adsense_client' => env('GOOGLE_ADSENSE_CLIENT'), // e.g. ca-pub-1234567890123456
+    ],
+
 ];

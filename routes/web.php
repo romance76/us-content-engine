@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 // Public site
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/privacy', fn () => view('public.privacy'))->name('privacy');
+Route::get('/about', fn () => view('public.about'))->name('about');
 Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
 
 // Admin — single-operator content review & publish
