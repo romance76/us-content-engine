@@ -27,7 +27,7 @@
     @vite(['resources/css/app.css'])
     @stack('head')
     <script>
-        (function () {
+        document.addEventListener('DOMContentLoaded', function () {
             var weatherEl = document.getElementById('topbar-weather');
             var fxEl = document.getElementById('topbar-fx');
 
@@ -69,7 +69,7 @@
                     if (rate) fxEl.textContent = '💱 $1 = ' + Math.round(rate).toLocaleString() + '원';
                 })
                 .catch(function () {});
-        })();
+        });
     </script>
 </head>
 <body class="bg-white text-gray-900 antialiased">
