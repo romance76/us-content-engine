@@ -26,6 +26,26 @@
     @endif
     @vite(['resources/css/app.css'])
     @stack('head')
+    <style>
+        /* Keep the injected Google Translate banner/iframe from pushing the page down or branding over it. */
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+        #google_translate_element .goog-te-gadget { font-size: 0; }
+        #google_translate_element .goog-te-gadget-simple {
+            background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 6px; font-size: 12px;
+        }
+    </style>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ko',
+                includedLanguages: 'en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false,
+            }, 'google_translate_element');
+        }
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var weatherEl = document.getElementById('topbar-weather');
@@ -77,6 +97,7 @@
         <div class="max-w-6xl mx-auto px-4 py-1.5 flex items-center justify-end gap-4">
             <span id="topbar-weather"></span>
             <span id="topbar-fx"></span>
+            <span id="google_translate_element" class="notranslate"></span>
         </div>
     </div>
 
