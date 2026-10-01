@@ -21,24 +21,30 @@ class Article extends Model
 
     public const CATEGORIES = [
         '생활정보',
-        '금융·세금',
+        '이민·비자',
+        '세금',
+        '금융',
+        '보험',
         '부동산',
         '교통',
+        '교육',
         '날씨·안전',
         '통신',
         '창업·비즈니스',
-        '교육',
     ];
 
     public const CATEGORY_LABELS_EN = [
         '생활정보' => 'Daily Life',
-        '금융·세금' => 'Finance & Tax',
+        '이민·비자' => 'Immigration & Visa',
+        '세금' => 'Taxes',
+        '금융' => 'Finance',
+        '보험' => 'Insurance',
         '부동산' => 'Real Estate',
         '교통' => 'Transportation',
+        '교육' => 'Education',
         '날씨·안전' => 'Weather & Safety',
         '통신' => 'Mobile & Internet',
         '창업·비즈니스' => 'Business',
-        '교육' => 'Education',
     ];
 
     protected $fillable = [
