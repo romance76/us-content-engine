@@ -6,12 +6,20 @@
     <title>@yield('title', config('app.name'))</title>
     <meta name="description" content="@yield('meta_description', config('app.tagline', ''))">
     <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="@yield('title', config('app.name'))">
     <meta property="og:description" content="@yield('meta_description', '')">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:locale" content="{{ app()->getLocale() === 'en' ? 'en_US' : 'ko_KR' }}">
+    <meta name="twitter:title" content="@yield('title', config('app.name'))">
+    <meta name="twitter:description" content="@yield('meta_description', '')">
     @hasSection('og_image')
         <meta property="og:image" content="@yield('og_image')">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:image" content="@yield('og_image')">
+    @else
+        <meta name="twitter:card" content="summary">
     @endif
     <link rel="alternate" type="application/rss+xml" title="{{ config('app.name') }}" href="{{ route('sitemap') }}">
     @if (config('services.google.site_verification'))
