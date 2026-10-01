@@ -48,4 +48,12 @@ return [
         'site_verification' => env('NAVER_SITE_VERIFICATION'),
     ],
 
+    'generation' => [
+        // Pinged by the admin "지금 생성" button — wakes the AI pipeline to
+        // write and publish a fresh batch of articles on demand, instead of
+        // waiting for the daily schedule. Tied to a specific session, so it
+        // needs refreshing there if it ever stops responding.
+        'webhook_url' => env('GENERATION_WEBHOOK_URL'),
+    ],
+
 ];

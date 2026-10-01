@@ -7,6 +7,9 @@ use App\Models\Article;
 use App\Models\Keyword;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class ArticleController extends Controller
@@ -89,6 +92,44 @@ class ArticleController extends Controller
         $article->delete();
 
         return redirect()->route('admin.articles.index')->with('status', '삭제되었습니다.');
+    }
+
+    /**
+     * Pings the AI pipeline's webhook so it picks up the request and writes
+     * a fresh batch of articles — there's no on-server LLM to generate text
+     * directly, so this just relays the request to wherever the pipeline is
+     * listening. A short cooldown stops accidental double-clicks from firing
+     * two overlapping generation runs.
+     */
+    public function generate(): RedirectResponse
+    {
+        $cooldownKey = 'admin.generate.cooldown';
+
+        if (Cache::has($cooldownKey)) {
+            return back()->with('status', '방금 요청을 보냈습니다 — 몇 분 정도 더 기다려주세요.');
+        }
+
+        $webhookUrl = config('services.generation.webhook_url');
+
+        if (! $webhookUrl) {
+            return back()->with('status', '자동 생성 webhook이 설정되지 않았습니다.');
+        }
+
+        try {
+            Http::timeout(5)->post($webhookUrl, [
+                'action' => 'generate_articles',
+                'count' => 10,
+                'requested_by' => auth()->user()->email,
+                'requested_at' => now()->toIso8601String(),
+            ]);
+            Cache::put($cooldownKey, true, now()->addMinutes(10));
+
+            return back()->with('status', '요청을 보냈습니다. 몇 분 안에 새 글이 올라올 거예요.');
+        } catch (\Throwable $e) {
+            Log::warning('Generation webhook call failed', ['error' => $e->getMessage()]);
+
+            return back()->with('status', '요청 전송에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        }
     }
 
     private function validated(Request $request, ?Article $article = null): array

@@ -35,6 +35,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('articles/{article}/unpublish', [AdminArticleController::class, 'unpublish'])->name('articles.unpublish');
     Route::delete('articles/{article}', [AdminArticleController::class, 'destroy'])->name('articles.destroy');
 
+    Route::post('generate', [AdminArticleController::class, 'generate'])->name('articles.generate');
+
     Route::get('keywords', [AdminKeywordController::class, 'index'])->name('keywords.index');
     Route::post('keywords', [AdminKeywordController::class, 'store'])->name('keywords.store');
     Route::put('keywords/{keyword}', [AdminKeywordController::class, 'update'])->name('keywords.update');

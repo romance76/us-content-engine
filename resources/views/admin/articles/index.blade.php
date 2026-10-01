@@ -2,9 +2,17 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Articles</h2>
-            <a href="{{ route('admin.articles.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700">
-                + New article
-            </a>
+            <div class="flex gap-2">
+                <form method="POST" action="{{ route('admin.articles.generate') }}" onsubmit="return confirm('지금 바로 새 글 10개 자동 생성을 요청할까요?')">
+                    @csrf
+                    <button class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-500">
+                        🚀 지금 자동 생성
+                    </button>
+                </form>
+                <a href="{{ route('admin.articles.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700">
+                    + New article
+                </a>
+            </div>
         </div>
     </x-slot>
 
