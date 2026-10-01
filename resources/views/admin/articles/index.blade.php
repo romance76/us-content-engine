@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Articles</h2>
             <div class="flex gap-2">
-                <form method="POST" action="{{ route('admin.articles.generate') }}" onsubmit="return confirm('지금 바로 새 글 10개 자동 생성을 요청할까요?')">
+                <form method="POST" action="{{ route('admin.articles.generate') }}" onsubmit="return confirm('새 글 10개 자동 생성을 요청할까요?\n\n시간당 처리 루틴이 확인하기 때문에 최대 1시간 이내에 순차적으로 올라옵니다 (즉시 생성되지 않습니다).')">
                     @csrf
                     <button class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-500">
                         🚀 지금 자동 생성

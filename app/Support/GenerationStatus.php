@@ -15,7 +15,13 @@ class GenerationStatus
 {
     private const KEY = 'generation.status';
 
-    private const TTL_MINUTES = 20;
+    // The hourly processing routine only checks once an hour (the
+    // platform's minimum schedule interval), so a request made right
+    // after one check-in can sit for close to 60 minutes before the next
+    // one picks it up. This must stay comfortably longer than that, or a
+    // click near the start of the hour silently expires before anything
+    // ever processes it.
+    private const TTL_MINUTES = 90;
 
     public static function start(int $target, string $requestedBy): void
     {

@@ -10,8 +10,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class ArticleController extends Controller
@@ -97,11 +95,12 @@ class ArticleController extends Controller
     }
 
     /**
-     * Pings the AI pipeline's webhook so it picks up the request and writes
-     * a fresh batch of articles — there's no on-server LLM to generate text
-     * directly, so this just relays the request to wherever the pipeline is
-     * listening. A short cooldown stops accidental double-clicks from firing
-     * two overlapping generation runs.
+     * Marks an on-demand batch as requested. There's no on-server LLM, so
+     * nothing generates text right here — a scheduled routine polls
+     * GenerationStatus hourly (the platform's minimum scheduling interval)
+     * and does the actual writing/publishing when it sees a pending
+     * request. A short cooldown stops accidental double-clicks from
+     * queuing two overlapping batches.
      */
     public function generate(): RedirectResponse
     {
@@ -111,28 +110,10 @@ class ArticleController extends Controller
             return back()->with('status', '방금 요청을 보냈습니다 — 몇 분 정도 더 기다려주세요.');
         }
 
-        $webhookUrl = config('services.generation.webhook_url');
+        Cache::put($cooldownKey, true, now()->addMinutes(10));
+        GenerationStatus::start(10, auth()->user()->email);
 
-        if (! $webhookUrl) {
-            return back()->with('status', '자동 생성 webhook이 설정되지 않았습니다.');
-        }
-
-        try {
-            Http::timeout(5)->post($webhookUrl, [
-                'action' => 'generate_articles',
-                'count' => 10,
-                'requested_by' => auth()->user()->email,
-                'requested_at' => now()->toIso8601String(),
-            ]);
-            Cache::put($cooldownKey, true, now()->addMinutes(10));
-            GenerationStatus::start(10, auth()->user()->email);
-
-            return back()->with('status', '요청을 보냈습니다. 몇 분 안에 새 글이 올라올 거예요.');
-        } catch (\Throwable $e) {
-            Log::warning('Generation webhook call failed', ['error' => $e->getMessage()]);
-
-            return back()->with('status', '요청 전송에 실패했습니다. 잠시 후 다시 시도해주세요.');
-        }
+        return back()->with('status', '요청을 접수했습니다. 시간당 자동 처리 루틴이 확인해서 최대 1시간 이내에 새 글이 올라올 거예요.');
     }
 
     public function generationStatus(): JsonResponse

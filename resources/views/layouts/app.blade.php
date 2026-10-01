@@ -66,14 +66,26 @@
                                 setVisible(true);
                                 bar.classList.remove('bg-green-600');
                                 bar.classList.add('bg-indigo-600');
-                                label.textContent = '자동 생성 중...';
-                                var pct = Math.min(100, Math.round((data.completed / data.target) * 100));
-                                fill.style.width = pct + '%';
+                                if (data.completed === 0) {
+                                    // Nothing has published yet — the hourly routine
+                                    // may not have picked this request up yet, so say
+                                    // so instead of showing a bar stuck at 0%, which
+                                    // reads as broken rather than queued.
+                                    label.textContent = '요청 접수됨 — 자동 처리 루틴이 최대 1시간 이내에 시작합니다';
+                                    fill.classList.add('animate-pulse');
+                                    fill.style.width = '6%';
+                                } else {
+                                    label.textContent = '자동 생성 중...';
+                                    fill.classList.remove('animate-pulse');
+                                    var pct = Math.min(100, Math.round((data.completed / data.target) * 100));
+                                    fill.style.width = pct + '%';
+                                }
                                 count.textContent = data.completed + ' / ' + data.target;
                             } else if (data.status === 'done') {
                                 setVisible(true);
                                 bar.classList.remove('bg-indigo-600');
                                 bar.classList.add('bg-green-600');
+                                fill.classList.remove('animate-pulse');
                                 label.textContent = '완료: ' + (data.message || '');
                                 fill.style.width = '100%';
                                 count.textContent = data.completed + ' / ' + data.target;
