@@ -11,6 +11,7 @@ Route::middleware('ingest.token')->prefix('ingest')->group(function () {
     Route::post('/articles', [IngestArticleController::class, 'store']);
     Route::get('/articles/missing-cover', [IngestArticleController::class, 'missingCover']);
     Route::patch('/articles/{article}', [IngestArticleController::class, 'update']);
+    Route::get('/generation/status', [IngestArticleController::class, 'generationStatus']);
     Route::post('/generation/complete', [IngestArticleController::class, 'generationComplete']);
     Route::get('/keywords', [IngestKeywordController::class, 'index']);
     Route::post('/keywords', [IngestKeywordController::class, 'store']);

@@ -63,6 +63,17 @@ class IngestArticleController extends Controller
     }
 
     /**
+     * Lets the pipeline check whether the admin's "지금 자동 생성" button has
+     * an unprocessed request waiting, since the pipeline runs as a separate
+     * process (a scheduled check-in) with no direct access to the admin
+     * session or its cache.
+     */
+    public function generationStatus(): JsonResponse
+    {
+        return response()->json(GenerationStatus::current() ?? ['status' => 'idle']);
+    }
+
+    /**
      * Called once at the end of a generation batch to mark it finished and
      * record a short result summary for the admin progress bar to show.
      */
