@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +9,7 @@
     <meta property="og:title" content="@yield('title', config('app.name'))">
     <meta property="og:description" content="@yield('meta_description', '')">
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:locale" content="ko_KR">
+    <meta property="og:locale" content="{{ app()->getLocale() === 'en' ? 'en_US' : 'ko_KR' }}">
     @hasSection('og_image')
         <meta property="og:image" content="@yield('og_image')">
     @endif
@@ -27,69 +27,15 @@
     @vite(['resources/css/app.css'])
     @stack('head')
     <style>
-        /* Google Translate's own widget UI is hidden (#google_translate_element below) —
-           our own button drives it, so none of its default styling shows. */
-        .goog-te-banner-frame { display: none !important; }
-        body { top: 0 !important; }
-        #google_translate_element { display: none !important; }
         #translate-btn {
-            background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 8px; font-size: 12px; cursor: pointer;
+            display: inline-block; background: #fff; border: 1px solid #e5e7eb; border-radius: 4px;
+            padding: 2px 8px; font-size: 12px; color: #374151; text-decoration: none;
         }
     </style>
-    <script>
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'ko',
-                includedLanguages: 'en',
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                autoDisplay: false,
-            }, 'google_translate_element');
-        }
-    </script>
-    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var weatherEl = document.getElementById('topbar-weather');
             var fxEl = document.getElementById('topbar-fx');
-            var translateBtn = document.getElementById('translate-btn');
-
-            function isTranslated() {
-                return document.cookie.indexOf('googtrans=/ko/en') !== -1;
-            }
-
-            function setTranslateBtnLabel() {
-                translateBtn.textContent = isTranslated() ? '한국어' : 'EN';
-            }
-
-            function switchToEnglish(attemptsLeft) {
-                var combo = document.querySelector('#google_translate_element select.goog-te-combo');
-                if (combo) {
-                    combo.value = 'en';
-                    combo.dispatchEvent(new Event('change'));
-                    setTimeout(setTranslateBtnLabel, 300);
-                    return;
-                }
-                // The widget's own setup (fetching its supported-language list) can take
-                // a moment on first load — retry briefly instead of giving up silently.
-                if (attemptsLeft > 0) {
-                    setTimeout(function () { switchToEnglish(attemptsLeft - 1); }, 500);
-                } else {
-                    translateBtn.textContent = 'EN (불러오는 중 오류, 새로고침 후 재시도)';
-                }
-            }
-
-            translateBtn.addEventListener('click', function () {
-                var host = location.hostname.replace(/^www\./, '');
-                if (isTranslated()) {
-                    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + host;
-                    location.reload();
-                    return;
-                }
-                switchToEnglish(10);
-            });
-
-            setTranslateBtnLabel();
 
             function weatherIcon(code) {
                 if (code === 0) return '☀️';
@@ -137,8 +83,7 @@
         <div class="max-w-6xl mx-auto px-4 py-1.5 flex items-center justify-end gap-4">
             <span id="topbar-weather"></span>
             <span id="topbar-fx"></span>
-            <button id="translate-btn" type="button" class="notranslate">EN</button>
-            <span id="google_translate_element" class="notranslate"></span>
+            {{-- EN/한국어 toggle temporarily removed — translation backend on hold pending a reliable API (see App\Services\Translator). --}}
         </div>
     </div>
 
@@ -157,9 +102,9 @@
 
     <footer class="border-t border-gray-100 mt-16">
         <div class="max-w-6xl mx-auto px-4 py-8 text-sm text-gray-400 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <span>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</span>
-            <a href="{{ route('about') }}" class="hover:text-gray-600">소개</a>
-            <a href="{{ route('privacy') }}" class="hover:text-gray-600">개인정보처리방침</a>
+            <span>&copy; {{ date('Y') }} {{ config('app.name') }}. {{ __('site.all_rights_reserved') }}</span>
+            <a href="{{ route('about') }}" class="hover:text-gray-600">{{ __('site.about') }}</a>
+            <a href="{{ route('privacy') }}" class="hover:text-gray-600">{{ __('site.privacy') }}</a>
         </div>
     </footer>
 </body>

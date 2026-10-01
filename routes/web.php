@@ -9,6 +9,12 @@ use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 // Public site
+Route::get('/lang/{locale}', function (string $locale) {
+    $locale = $locale === 'en' ? 'en' : 'ko';
+
+    return back()->withCookie(cookie('lang', $locale, 60 * 24 * 365));
+})->whereIn('locale', ['en', 'ko'])->name('lang.switch');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/category/{category}', [HomeController::class, 'category'])->name('category.show');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
