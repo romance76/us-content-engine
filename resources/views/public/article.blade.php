@@ -38,9 +38,16 @@
             <a href="{{ route('category.show', $article->category) }}" class="mt-4 inline-block text-xs font-medium text-blue-700">{{ $displayCategory }}</a>
         @endif
         <h1 class="mt-1 text-3xl font-bold leading-tight">{{ $displayTitle }}</h1>
-        <time class="mt-2 block text-sm text-gray-400" datetime="{{ $article->published_at?->toIso8601String() }}">
-            {{ $article->published_at?->format('M j, Y') }}
-        </time>
+        <div class="mt-2 flex items-center gap-3 flex-wrap">
+            <time class="text-sm text-gray-400" datetime="{{ $article->published_at?->toIso8601String() }}">
+                {{ $article->published_at?->format('M j, Y') }}
+            </time>
+            <span class="text-gray-200">·</span>
+            <button type="button" id="share-btn" class="text-sm text-blue-700 hover:underline">🔗 공유하기</button>
+            <a id="share-fb" href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank" rel="noopener" class="hidden text-sm text-blue-700 hover:underline">Facebook</a>
+            <a id="share-x" href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($displayTitle) }}" target="_blank" rel="noopener" class="hidden text-sm text-blue-700 hover:underline">X</a>
+            <button type="button" id="share-copy" class="hidden text-sm text-blue-700 hover:underline">링크 복사</button>
+        </div>
 
         @if ($article->cover_image_url && ! $bodyHasImage)
             <img src="{{ $article->cover_image_url }}" alt="{{ $displayTitle }}" class="mt-6 rounded-lg w-full">
@@ -94,5 +101,35 @@
         'dateModified' => $article->updated_at->toIso8601String(),
         'description' => $displayMetaDescription,
     ]) !!}
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var shareBtn = document.getElementById('share-btn');
+            var copyBtn = document.getElementById('share-copy');
+            var url = {!! json_encode(url()->current()) !!};
+            var title = {!! json_encode($displayTitle) !!};
+
+            if (navigator.share) {
+                shareBtn.addEventListener('click', function () {
+                    navigator.share({ title: title, url: url }).catch(function () {});
+                });
+            } else {
+                // No native share sheet (most desktop browsers) — show link
+                // buttons instead of a button that would do nothing.
+                shareBtn.classList.add('hidden');
+                document.getElementById('share-fb').classList.remove('hidden');
+                document.getElementById('share-x').classList.remove('hidden');
+                copyBtn.classList.remove('hidden');
+            }
+
+            copyBtn.addEventListener('click', function () {
+                navigator.clipboard.writeText(url).then(function () {
+                    var original = copyBtn.textContent;
+                    copyBtn.textContent = '복사됨!';
+                    setTimeout(function () { copyBtn.textContent = original; }, 1500);
+                }).catch(function () {});
+            });
+        });
     </script>
 @endsection
