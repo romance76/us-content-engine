@@ -36,6 +36,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::delete('articles/{article}', [AdminArticleController::class, 'destroy'])->name('articles.destroy');
 
     Route::post('generate', [AdminArticleController::class, 'generate'])->name('articles.generate');
+    Route::get('generate/status', [AdminArticleController::class, 'generationStatus'])->name('articles.generate.status');
 
     Route::get('keywords', [AdminKeywordController::class, 'index'])->name('keywords.index');
     Route::post('keywords', [AdminKeywordController::class, 'store'])->name('keywords.store');

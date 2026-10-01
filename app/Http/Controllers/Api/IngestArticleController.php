@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Keyword;
+use App\Support\GenerationStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -54,7 +55,26 @@ class IngestArticleController extends Controller
 
         $article = Article::create($data);
 
+        if ($publish) {
+            GenerationStatus::increment();
+        }
+
         return response()->json(['id' => $article->id, 'slug' => $article->slug, 'status' => $article->status], 201);
+    }
+
+    /**
+     * Called once at the end of a generation batch to mark it finished and
+     * record a short result summary for the admin progress bar to show.
+     */
+    public function generationComplete(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'message' => ['required', 'string', 'max:255'],
+        ]);
+
+        GenerationStatus::complete($data['message']);
+
+        return response()->json(['ok' => true]);
     }
 
     /**

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Keyword;
+use App\Support\GenerationStatus;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -123,6 +125,7 @@ class ArticleController extends Controller
                 'requested_at' => now()->toIso8601String(),
             ]);
             Cache::put($cooldownKey, true, now()->addMinutes(10));
+            GenerationStatus::start(10, auth()->user()->email);
 
             return back()->with('status', '요청을 보냈습니다. 몇 분 안에 새 글이 올라올 거예요.');
         } catch (\Throwable $e) {
@@ -130,6 +133,11 @@ class ArticleController extends Controller
 
             return back()->with('status', '요청 전송에 실패했습니다. 잠시 후 다시 시도해주세요.');
         }
+    }
+
+    public function generationStatus(): JsonResponse
+    {
+        return response()->json(GenerationStatus::current() ?? ['status' => 'idle']);
     }
 
     private function validated(Request $request, ?Article $article = null): array
