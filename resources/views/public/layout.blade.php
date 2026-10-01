@@ -27,12 +27,14 @@
     @vite(['resources/css/app.css'])
     @stack('head')
     <style>
-        /* Keep the injected Google Translate banner/iframe from pushing the page down or branding over it. */
+        /* Google Translate's own widget UI is hidden entirely (see #google_translate_element
+           below) — a plain button drives it instead, so nothing of its default styling
+           (which clashes with Tailwind's reset and rendered as an oversized box) is shown. */
         .goog-te-banner-frame { display: none !important; }
         body { top: 0 !important; }
-        #google_translate_element .goog-te-gadget { font-size: 0; }
-        #google_translate_element .goog-te-gadget-simple {
-            background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 6px; font-size: 12px;
+        #google_translate_element { display: none !important; }
+        #translate-btn {
+            background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 8px; font-size: 12px; cursor: pointer;
         }
     </style>
     <script>
@@ -50,6 +52,33 @@
         document.addEventListener('DOMContentLoaded', function () {
             var weatherEl = document.getElementById('topbar-weather');
             var fxEl = document.getElementById('topbar-fx');
+            var translateBtn = document.getElementById('translate-btn');
+
+            function isTranslated() {
+                return document.cookie.indexOf('googtrans=/ko/en') !== -1;
+            }
+
+            function setTranslateBtnLabel() {
+                translateBtn.textContent = isTranslated() ? '한국어' : 'EN';
+            }
+
+            translateBtn.addEventListener('click', function () {
+                var host = location.hostname.replace(/^www\./, '');
+                if (isTranslated()) {
+                    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + host;
+                    location.reload();
+                    return;
+                }
+                var combo = document.querySelector('#google_translate_element select.goog-te-combo');
+                if (combo) {
+                    combo.value = 'en';
+                    combo.dispatchEvent(new Event('change'));
+                    setTimeout(setTranslateBtnLabel, 300);
+                }
+            });
+
+            setTranslateBtnLabel();
 
             function weatherIcon(code) {
                 if (code === 0) return '☀️';
@@ -97,6 +126,7 @@
         <div class="max-w-6xl mx-auto px-4 py-1.5 flex items-center justify-end gap-4">
             <span id="topbar-weather"></span>
             <span id="topbar-fx"></span>
+            <button id="translate-btn" type="button" class="notranslate">EN</button>
             <span id="google_translate_element" class="notranslate"></span>
         </div>
     </div>
