@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -12,6 +13,13 @@ class ArticleController extends Controller
     {
         if ($article->status !== Article::STATUS_PUBLISHED && ! auth()->check()) {
             throw new NotFoundHttpException;
+        }
+
+        if ($article->status === Article::STATUS_PUBLISHED) {
+            // Raw query builder update, not the Eloquent model — this must not
+            // touch updated_at, which the admin list and article:modified_time
+            // meta both rely on to mean "content last edited", not "last read".
+            DB::table('articles')->whereKey($article->id)->increment('views');
         }
 
         $related = Article::published()

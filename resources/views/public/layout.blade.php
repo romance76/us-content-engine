@@ -32,6 +32,15 @@
         <meta name="google-adsense-account" content="{{ config('services.google.adsense_client') }}">
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config('services.google.adsense_client') }}" crossorigin="anonymous"></script>
     @endif
+    @if (config('services.google.analytics_id'))
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google.analytics_id') }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ config('services.google.analytics_id') }}');
+        </script>
+    @endif
     @vite(['resources/css/app.css'])
     @stack('head')
     <style>

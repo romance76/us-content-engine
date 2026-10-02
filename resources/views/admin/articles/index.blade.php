@@ -38,6 +38,7 @@
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3">Category</th>
                         <th class="px-4 py-3">Source</th>
+                        <th class="px-4 py-3 text-right">Views</th>
                         <th class="px-4 py-3">Updated</th>
                         <th class="px-4 py-3"></th>
                     </tr>
@@ -58,6 +59,7 @@
                             </td>
                             <td class="px-4 py-3 text-gray-500">{{ $article->category ?? '—' }}</td>
                             <td class="px-4 py-3 text-gray-500">{{ $article->generated_by }}</td>
+                            <td class="px-4 py-3 text-gray-500 text-right tabular-nums">{{ number_format($article->views) }}</td>
                             <td class="px-4 py-3 text-gray-500">{{ $article->updated_at->diffForHumans() }}</td>
                             <td class="px-4 py-3 text-right">
                                 <a href="{{ route('admin.articles.edit', $article) }}" class="text-blue-600 hover:underline">Edit</a>
@@ -65,7 +67,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-8 text-center text-gray-400">No articles yet.</td>
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-400">No articles yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

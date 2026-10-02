@@ -42,6 +42,7 @@ return [
     'google' => [
         'site_verification' => env('GOOGLE_SITE_VERIFICATION'),
         'adsense_client' => env('GOOGLE_ADSENSE_CLIENT'), // e.g. ca-pub-1234567890123456
+        'analytics_id' => env('GOOGLE_ANALYTICS_ID'), // GA4 Measurement ID, e.g. G-XXXXXXXXXX
     ],
 
     'naver' => [
