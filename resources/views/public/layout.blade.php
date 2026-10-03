@@ -6,6 +6,11 @@
     <title>@yield('title', config('app.name'))</title>
     <meta name="description" content="@yield('meta_description', config('app.tagline', ''))">
     <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
     <meta property="og:site_name" content="{{ config('app.name') }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="@yield('title', config('app.name'))">
