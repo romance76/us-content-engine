@@ -94,7 +94,7 @@
 
     <script type="application/ld+json">
     {!! json_encode([
-        '@context' => 'https://schema.org',
+        '@@context' => 'https://schema.org',
         '@type' => 'Article',
         'headline' => $displayTitle,
         'datePublished' => $article->published_at?->toIso8601String(),
