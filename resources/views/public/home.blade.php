@@ -5,10 +5,18 @@
     $activeCategoryLabel = $activeCategory ? (\App\Models\Article::CATEGORY_LABELS_EN[$activeCategory] ?? $activeCategory) : null;
 @endphp
 
-@section('title', $activeCategory
-    ? ($isEn ? $activeCategoryLabel : $activeCategory).' — '.config('app.name')
-    : config('app.name').' — '.config('app.tagline', 'Latest articles'))
+@section('title', ($searchQuery ?? null)
+    ? __('site.search_results_for', ['query' => $searchQuery]).' — '.config('app.name')
+    : ($activeCategory
+        ? ($isEn ? $activeCategoryLabel : $activeCategory).' — '.config('app.name')
+        : config('app.name').' — '.config('app.tagline', 'Latest articles')))
 @section('meta_description', config('app.tagline', ''))
+
+@if ($searchQuery ?? null)
+    @push('head')
+        <meta name="robots" content="noindex,follow">
+    @endpush
+@endif
 
 @section('content')
     <div class="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-10">
@@ -51,7 +59,12 @@
         </aside>
 
         <div>
-            @if ($activeCategory)
+            @if ($searchQuery ?? null)
+                <div class="flex items-center gap-2 mb-6">
+                    <h1 class="text-xl font-bold">{{ __('site.search_results_for', ['query' => '"'.$searchQuery.'"']) }}</h1>
+                    <a href="{{ route('home') }}" class="text-sm text-gray-400 hover:text-gray-600">{{ __('site.view_all') }}</a>
+                </div>
+            @elseif ($activeCategory)
                 <div class="flex items-center gap-2 mb-6">
                     <h1 class="text-xl font-bold">{{ $isEn ? $activeCategoryLabel : $activeCategory }}</h1>
                     <a href="{{ route('home') }}" class="text-sm text-gray-400 hover:text-gray-600">{{ __('site.view_all') }}</a>
@@ -83,7 +96,9 @@
                         </a>
                     </article>
                 @empty
-                    <p class="text-gray-400 col-span-2">{{ __('site.no_articles') }}</p>
+                    <p class="text-gray-400 col-span-2">
+                        {{ ($searchQuery ?? null) ? __('site.no_search_results', ['query' => '"'.$searchQuery.'"']) : __('site.no_articles') }}
+                    </p>
                 @endforelse
             </div>
 

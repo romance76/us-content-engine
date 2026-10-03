@@ -19,7 +19,10 @@ class ArticleController extends Controller
             // Raw query builder update, not the Eloquent model — this must not
             // touch updated_at, which the admin list and article:modified_time
             // meta both rely on to mean "content last edited", not "last read".
-            DB::table('articles')->whereKey($article->id)->increment('views');
+            // whereKey() is an Eloquent Builder method; on the base query
+            // builder it silently resolves to a dynamic where on a column
+            // literally named "key", matching nothing — use where('id', ...).
+            DB::table('articles')->where('id', $article->id)->increment('views');
         }
 
         $related = Article::published()

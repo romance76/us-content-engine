@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -17,10 +18,22 @@ class HomeController extends Controller
         return $this->render($category);
     }
 
-    private function render(?string $category = null): View
+    public function search(Request $request): View
+    {
+        $query = trim((string) $request->query('q', ''));
+
+        return $this->render(null, $query);
+    }
+
+    private function render(?string $category = null, ?string $searchQuery = null): View
     {
         $articles = Article::published()
             ->when($category, fn ($q) => $q->category($category))
+            ->when($searchQuery, fn ($q) => $q->where(function ($q) use ($searchQuery) {
+                $q->where('title', 'like', "%{$searchQuery}%")
+                    ->orWhere('excerpt', 'like', "%{$searchQuery}%")
+                    ->orWhere('body', 'like', "%{$searchQuery}%");
+            }))
             ->latest('published_at')
             ->paginate(10)
             ->withQueryString();
@@ -42,6 +55,7 @@ class HomeController extends Controller
             'categories' => $categories,
             'recent' => $recent,
             'activeCategory' => $category,
+            'searchQuery' => $searchQuery,
         ]);
     }
 }

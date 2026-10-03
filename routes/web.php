@@ -16,6 +16,7 @@ Route::get('/lang/{locale}', function (string $locale) {
 })->whereIn('locale', ['en', 'ko'])->name('lang.switch');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/search', [HomeController::class, 'search'])->name('search');
 Route::get('/category/{category}', [HomeController::class, 'category'])->name('category.show');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/privacy', fn () => view('public.privacy'))->name('privacy');

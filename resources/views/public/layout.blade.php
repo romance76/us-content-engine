@@ -105,11 +105,15 @@
     </div>
 
     <header class="border-b border-gray-100">
-        <div class="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
-            <a href="{{ route('home') }}" class="flex items-center gap-2 text-lg font-bold tracking-tight">
+        <div class="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between gap-4 flex-wrap">
+            <a href="{{ route('home') }}" class="flex items-center gap-2 text-lg font-bold tracking-tight shrink-0">
                 <x-application-logo class="h-7 w-7 fill-current text-gray-800" />
                 {{ config('app.name') }}
             </a>
+            <form action="{{ route('search') }}" method="GET" class="flex-1 max-w-xs">
+                <input type="search" name="q" value="{{ request('q') }}" placeholder="{{ __('site.search_placeholder') }}"
+                       class="w-full rounded-full border border-gray-200 px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300">
+            </form>
         </div>
     </header>
 
