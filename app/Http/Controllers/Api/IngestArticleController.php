@@ -8,6 +8,8 @@ use App\Models\Keyword;
 use App\Support\GenerationStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Receives AI-drafted articles from the external content pipeline.
@@ -100,6 +102,18 @@ class IngestArticleController extends Controller
             ->get(['id', 'slug', 'title', 'category', 'excerpt']);
 
         return response()->json($articles);
+    }
+
+    /**
+     * Temporary diagnostic — remove once the views-counter bug is confirmed fixed.
+     */
+    public function debugViews(Article $article): JsonResponse
+    {
+        return response()->json([
+            'has_views_column' => Schema::hasColumn('articles', 'views'),
+            'migrations_ran' => DB::table('migrations')->where('migration', 'like', '%add_views_to_articles%')->get(),
+            'raw_row' => DB::table('articles')->where('id', $article->id)->first(),
+        ]);
     }
 
     public function update(Request $request, Article $article): JsonResponse
