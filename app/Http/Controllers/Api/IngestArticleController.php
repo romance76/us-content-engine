@@ -109,10 +109,25 @@ class IngestArticleController extends Controller
      */
     public function debugViews(Article $article): JsonResponse
     {
+        $before = DB::table('articles')->where('id', $article->id)->value('views');
+
+        $increment_result = null;
+        $increment_error = null;
+        try {
+            $increment_result = DB::table('articles')->whereKey($article->id)->increment('views');
+        } catch (\Throwable $e) {
+            $increment_error = get_class($e).': '.$e->getMessage();
+        }
+
+        $after = DB::table('articles')->where('id', $article->id)->value('views');
+
         return response()->json([
             'has_views_column' => Schema::hasColumn('articles', 'views'),
-            'migrations_ran' => DB::table('migrations')->where('migration', 'like', '%add_views_to_articles%')->get(),
-            'raw_row' => DB::table('articles')->where('id', $article->id)->first(),
+            'views_before' => $before,
+            'increment_result' => $increment_result,
+            'increment_error' => $increment_error,
+            'views_after' => $after,
+            'generated_sql' => DB::table('articles')->whereKey($article->id)->toSql(),
         ]);
     }
 
